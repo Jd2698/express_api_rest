@@ -8,8 +8,8 @@ const getUsers = async (req, res) => {
 
 		res.json(data)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error getting users:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
@@ -24,8 +24,8 @@ const getUser = async (req, res) => {
 
 		res.json(user)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error getting user:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
@@ -34,8 +34,8 @@ const createUser = async (req, res) => {
 		const result = await User.create(req.body)
 		res.json(result)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error creating user:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
@@ -51,8 +51,8 @@ const updateUser = async (req, res) => {
 
 		res.json(user)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error updating users:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 

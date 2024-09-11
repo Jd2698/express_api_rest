@@ -1,11 +1,21 @@
 const { Router } = require('express')
-const taskController = require('../controllers/tasks.controller.js')
+const {
+	validateCreate,
+	validateUpdate,
+	result
+} = require('../validators/tasks.js')
+const {
+	getTask,
+	getTasks,
+	createTask,
+	updateTask
+} = require('../controllers/tasks.controller.js')
 
 const router = Router()
 
-router.get('/tasks', taskController.getTasks)
-router.post('/tasks', taskController.createTask)
-router.put('/tasks/:id', taskController.updateTask)
-router.get('/tasks/:id', taskController.getTask)
+router.get('/', getTasks)
+router.post('/', validateCreate, result, createTask)
+router.put('/:id', validateUpdate, result, updateTask)
+router.get('/:id', getTask)
 
 module.exports = router

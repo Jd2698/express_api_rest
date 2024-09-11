@@ -8,8 +8,8 @@ const getTasks = async (req, res) => {
 
 		res.json(data)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error getting tasks:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
@@ -22,8 +22,8 @@ const getTask = async (req, res) => {
 
 		res.json(task)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error getting task: ', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
@@ -32,8 +32,8 @@ const createTask = async (req, res) => {
 		const result = await Task.create(req.body)
 		res.json(result)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error creating task:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
@@ -49,8 +49,8 @@ const updateTask = async (req, res) => {
 
 		res.json(task)
 	} catch (error) {
-		console.log(error)
-		res.status(500).json(error.message)
+		console.log('Error updating task:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
