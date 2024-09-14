@@ -24,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.ENUM('completed', 'pending'),
 				defaultValue: 'pending'
 			},
-			deadline: DataTypes.DATE
 		},
 		{
 			sequelize,

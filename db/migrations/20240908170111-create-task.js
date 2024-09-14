@@ -28,9 +28,6 @@ module.exports = {
 				type: Sequelize.ENUM('completed', 'pending'),
 				defaultValue: 'pending'
 			},
-			deadline: {
-				type: Sequelize.DATE
-			},
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE
