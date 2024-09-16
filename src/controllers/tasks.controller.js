@@ -54,9 +54,29 @@ const updateTask = async (req, res) => {
 	}
 }
 
+const deleteTask = async (req, res) => {
+	const { id } = req.params
+
+	try {
+		const result = await Task.destroy({
+			where: {
+				id
+			}
+		})
+
+		if (!result) return res.status(404).json({ message: 'Task not foundS' })
+
+		res.sendStatus(202)
+	} catch (error) {
+		console.log('Error deleting task:', error)
+		res.status(500).json({ message: 'Internal Server Error' })
+	}
+}
+
 module.exports = {
 	getTask,
 	getTasks,
 	createTask,
-	updateTask
+	updateTask,
+	deleteTask
 }
