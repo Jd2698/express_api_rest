@@ -1,9 +1,25 @@
 const Task = require('../../db/models').Task
+const User = require('../../db/models').User
 
 const getTasks = async (req, res) => {
+	const { userDeleted } = req.query
+
 	try {
+		let userCondition
+
+		if (userDeleted && userDeleted.toLowerCase() == 'true') {
+			userCondition = 0
+		} else {
+			userCondition = 1
+		}
+
 		const data = await Task.findAll({
-			include: 'User'
+			include: {
+				model: User,
+				where: {
+					is_deleted: userCondition
+				}
+			}
 		})
 
 		res.json(data)

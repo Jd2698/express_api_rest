@@ -23,12 +23,17 @@ module.exports = (sequelize, DataTypes) => {
 			status: {
 				type: DataTypes.ENUM('completed', 'pending'),
 				defaultValue: 'pending'
-			},
+			}
 		},
 		{
 			sequelize,
 			modelName: 'Task'
 		}
 	)
+
+	Task.addHook('beforeCreate', (task, options) => {
+		task.status = 'pending'
+	})
+
 	return Task
 }

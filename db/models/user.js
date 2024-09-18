@@ -22,6 +22,9 @@ module.exports = (sequelize, DataTypes) => {
 			password: {
 				type: DataTypes.STRING,
 				allowNull: false
+			},
+			is_deleted: {
+				type: DataTypes.INTEGER
 			}
 		},
 		{
@@ -29,5 +32,10 @@ module.exports = (sequelize, DataTypes) => {
 			modelName: 'User'
 		}
 	)
+
+	User.addHook('beforeCreate', (user, options) => {
+		user.is_deleted = 1
+	})
+
 	return User
 }
