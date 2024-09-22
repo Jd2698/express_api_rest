@@ -1,11 +1,12 @@
 const User = require('../../db/models').User
 
 const getUsers = async (req, res) => {
-	const { usersdeleted } = req.query
+	const { includeDeleted } = req.query
+
 	try {
 		let showUsersDeleted
 
-		if (usersdeleted && usersdeleted.toLowerCase() == 'true') {
+		if (includeDeleted && includeDeleted.toLowerCase() == 'true') {
 			showUsersDeleted = 0
 		} else {
 			showUsersDeleted = 1
@@ -18,7 +19,7 @@ const getUsers = async (req, res) => {
 
 		res.json(data)
 	} catch (error) {
-		console.log('Error getting users:', error)
+		console.log('Error fetching  users:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
@@ -27,26 +28,26 @@ const getUser = async (req, res) => {
 	const { id } = req.params
 
 	try {
-		const user = await User.findOne({
+		const foundUser = await User.findOne({
 			where: {
 				id,
 				is_deleted: 1
 			},
 			include: 'Tasks'
 		})
-		if (!user) return res.status(404).json({ message: 'User not found' })
+		if (!foundUser) return res.status(404).json({ message: 'User not found' })
 
-		res.json(user)
+		res.json(foundUser)
 	} catch (error) {
-		console.log('Error getting user:', error)
+		console.log('Error fetching  user:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
 const createUser = async (req, res) => {
 	try {
-		const result = await User.create(req.body)
-		res.json(result)
+		const newUser = await User.create(req.body)
+		res.json(newUser)
 	} catch (error) {
 		console.log('Error creating user:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -56,14 +57,19 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
 	const { id } = req.params
 
+	const authenticatedUserId = req.user.user.id
+	if (authenticatedUserId != id)
+		return res.status(403).json({ message: 'User without permissions' })
+
 	try {
-		const user = await User.findOne({ where: { id, is_deleted: 1 } })
-		if (!user) return res.status(404).json({ message: 'User not found' })
+		const existingUser = await User.findOne({ where: { id, is_deleted: 1 } })
+		if (!existingUser)
+			return res.status(404).json({ message: 'User not found' })
 
-		user.set(req.body)
-		await user.save()
+		existingUser.set(req.body)
+		await existingUser.save()
 
-		res.json(user)
+		res.json(existingUser)
 	} catch (error) {
 		console.log('Error updating users:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -73,13 +79,18 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
 	const { id } = req.params
 
+	const authenticatedUserId = req.user.user.id
+	if (authenticatedUserId != id)
+		return res.status(403).json({ message: 'User without permissions' })
+
 	try {
-		const user = await User.findByPk(id)
-		if (!user) return res.status(404).json({ message: 'User not found' })
+		const existingUser = await User.findByPk(id)
+		if (!existingUser)
+			return res.status(404).json({ message: 'User not found' })
 
-		user.set({ is_deleted: 0 })
+		existingUser.set({ is_deleted: 0 })
 
-		await user.save()
+		await existingUser.save()
 		res.sendStatus(202)
 	} catch (error) {
 		console.log('Error deleting user:', error)

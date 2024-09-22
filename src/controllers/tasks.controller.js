@@ -2,18 +2,23 @@ const Task = require('../../db/models').Task
 const User = require('../../db/models').User
 
 const getTasks = async (req, res) => {
-	const { userDeleted } = req.query
+	const { includeDeleted } = req.query
+
+	const authenticatedUserId = req.user.user.id
 
 	try {
 		let userCondition
 
-		if (userDeleted && userDeleted.toLowerCase() == 'true') {
+		if (includeDeleted && includeDeleted.toLowerCase() == 'true') {
 			userCondition = 0
 		} else {
 			userCondition = 1
 		}
 
 		const data = await Task.findAll({
+			where: {
+				user_id: authenticatedUserId
+			},
 			include: {
 				model: User,
 				where: {
@@ -24,7 +29,7 @@ const getTasks = async (req, res) => {
 
 		res.json(data)
 	} catch (error) {
-		console.log('Error getting tasks:', error)
+		console.log('Error fetching  tasks:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
@@ -32,21 +37,33 @@ const getTasks = async (req, res) => {
 const getTask = async (req, res) => {
 	const { id } = req.params
 
+	const authenticatedUserId = req.user.user.id
+
 	try {
-		const task = await Task.findByPk(id, { include: 'User' })
+		const task = await Task.findOne({
+			where: { id, user_id: authenticatedUserId },
+			include: { model: User }
+		})
+
 		if (!task) return res.status(404).json({ message: 'Task not found' })
 
 		res.json(task)
 	} catch (error) {
-		console.log('Error getting task: ', error)
+		console.log('Error fetching  task: ', error)
 		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
 
 const createTask = async (req, res) => {
+	const authenticatedUserId = req.user.user.id
+
 	try {
-		const result = await Task.create(req.body)
-		res.json(result)
+		const newTask = await Task.create({
+			...req.body,
+			user_id: authenticatedUserId
+		})
+
+		res.json(newTask)
 	} catch (error) {
 		console.log('Error creating task:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -55,15 +72,20 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
 	const { id } = req.params
+	const authenticatedUserId = req.user.user.id
 
 	try {
-		const task = await Task.findByPk(id)
-		if (!task) return res.status(404).json({ message: 'Task not found' })
+		const existingTask = await Task.findByPk(id)
+		if (!existingTask)
+			return res.status(404).json({ message: 'Task not found' })
 
-		task.set(req.body)
-		await task.save()
+		if (authenticatedUserId != existingTask.user_id)
+			return res.status(403).json({ message: 'User without permissions' })
 
-		res.json(task)
+		existingTask.set(req.body)
+		await existingTask.save()
+
+		res.json(existingTask)
 	} catch (error) {
 		console.log('Error updating task:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -72,15 +94,18 @@ const updateTask = async (req, res) => {
 
 const deleteTask = async (req, res) => {
 	const { id } = req.params
+	const authenticatedUserId = req.user.user.id
 
 	try {
-		const result = await Task.destroy({
+		const deletionResult = await Task.destroy({
 			where: {
-				id
+				id,
+				user_id: authenticatedUserId
 			}
 		})
 
-		if (!result) return res.status(404).json({ message: 'Task not foundS' })
+		if (!deletionResult)
+			return res.status(404).json({ message: 'Task not found' })
 
 		res.sendStatus(202)
 	} catch (error) {

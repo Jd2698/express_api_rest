@@ -1,4 +1,5 @@
 'use strict'
+const bcrypt = require('bcrypt')
 const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
@@ -33,8 +34,15 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	)
 
-	User.addHook('beforeCreate', (user, options) => {
-		user.is_deleted = 1
+	User.addHook('beforeCreate', async (user, options) => {
+		try {
+			user.is_deleted = 1
+
+			const passwordWithHash = await bcrypt.hash(user.password, 5)
+			user.password = passwordWithHash
+		} catch (error) {
+			console.log({ message: 'Error in hook beforeCreate' })
+		}
 	})
 
 	return User

@@ -6,10 +6,7 @@ const { taskErrors } = require('../utils/errorMessages.js')
 
 const validateUserId = () => [
 	body('user_id')
-		.exists()
-		.withMessage(taskErrors.userIdRequired)
-		.notEmpty()
-		.withMessage(taskErrors.userIdEmpty)
+		.optional()
 		.isNumeric()
 		.withMessage(taskErrors.userIdNumeric)
 		.custom(async value => {
