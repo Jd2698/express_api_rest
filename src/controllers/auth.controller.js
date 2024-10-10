@@ -19,7 +19,7 @@ const login = async (req, res) => {
 			expiresIn: '1h'
 		})
 
-		res.header('authorization', authToken).json({ authToken })
+		res.header('authorization', authToken).json({ token: authToken })
 	} catch (error) {
 		console.log('Login error: ' + error)
 		res.status(500).json({ message: 'Internal serve error' })

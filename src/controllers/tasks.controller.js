@@ -63,7 +63,7 @@ const createTask = async (req, res) => {
 			user_id: authenticatedUserId
 		})
 
-		res.json(newTask)
+		res.status(201).json(newTask)
 	} catch (error) {
 		console.log('Error creating task:', error)
 		res.status(500).json({ message: 'Internal Server Error' })

@@ -17,7 +17,7 @@ const getUsers = async (req, res) => {
 			include: 'Tasks'
 		})
 
-		res.json(data)
+		res.json({ users: data })
 	} catch (error) {
 		console.log('Error fetching  users:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -47,7 +47,7 @@ const getUser = async (req, res) => {
 const createUser = async (req, res) => {
 	try {
 		const newUser = await User.create(req.body)
-		res.json(newUser)
+		res.status(201).json({ user: newUser })
 	} catch (error) {
 		console.log('Error creating user:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -63,13 +63,15 @@ const updateUser = async (req, res) => {
 
 	try {
 		const existingUser = await User.findOne({ where: { id, is_deleted: 1 } })
+
+		// The conditional does not work
 		if (!existingUser)
 			return res.status(404).json({ message: 'User not found' })
 
 		existingUser.set(req.body)
 		await existingUser.save()
 
-		res.json(existingUser)
+		res.json({ user: existingUser })
 	} catch (error) {
 		console.log('Error updating users:', error)
 		res.status(500).json({ message: 'Internal Server Error' })
@@ -85,6 +87,8 @@ const deleteUser = async (req, res) => {
 
 	try {
 		const existingUser = await User.findByPk(id)
+
+		// the conditional does not work
 		if (!existingUser)
 			return res.status(404).json({ message: 'User not found' })
 

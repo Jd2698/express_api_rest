@@ -19,6 +19,4 @@ app.use(validateToken)
 app.use('/api/users', userRoutes)
 app.use('/api/tasks', taskRoutes)
 
-const port = process.env.PORT || 3000
-
-app.listen(port, () => console.log('running on port ' + port))
+module.exports = app
